@@ -20,13 +20,32 @@ namespace MathLab2
             };
 
 
-            SpecialView(ref matrixB);
-            PrintMatrix(matrixB);
+            
             SpecialIterationsMethod(matrixB, 0.001f);
         }
-
+        public static float NormOfMatrix(float[,] matrix)
+        {
+            float[] tempNorms = new float[matrix.GetLength(0)];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1) - 1; j++)
+                {
+                    tempNorms[i] += Math.Abs(matrix[i, j]);
+                }
+            }
+            return tempNorms.Max();
+        }
         public static void SpecialIterationsMethod(float[,] matrix, float e)
         {
+            SpecialView(ref matrix);
+            PrintMatrix(matrix);
+            float normOfMatrix = NormOfMatrix(matrix);
+            if(normOfMatrix >= 1)
+            {
+                Console.WriteLine("У матрицы не выполняется условие сходимости");
+                return;
+            }
+
             float[] actualVariablesX = new float[matrix.GetLength(0)];
             float[] tempVariablesX = new float[matrix.GetLength(0)];
             for (int i = 0; i < matrix.GetLength(0); i++)
@@ -34,7 +53,7 @@ namespace MathLab2
                 actualVariablesX[i] = matrix[i, matrix.GetLength(1) - 1];
             }
 
-            float maxDifference = 100;
+            float maxDifference = float.MaxValue;
             do
             {
 
@@ -52,11 +71,22 @@ namespace MathLab2
 
                 for (int i = 0; i < actualVariablesX.Length; i++)
                 {
-                    if (Math.Abs(actualVariablesX[i] - tempVariablesX[i]) <= maxDifference)
+                    if (normOfMatrix <= 0.5f)
                     {
-                        maxDifference = Math.Abs(actualVariablesX[i] - tempVariablesX[i]);
+                        if (Math.Abs(actualVariablesX[i] - tempVariablesX[i]) <= maxDifference)
+                        {
+                            maxDifference = Math.Abs(actualVariablesX[i] - tempVariablesX[i]);
+                        }
                     }
-                }
+                    else
+                    {
+                        if (Math.Abs(actualVariablesX[i] - tempVariablesX[i]) <= maxDifference)
+                        {
+                            maxDifference = (Math.Abs(actualVariablesX[i] - tempVariablesX[i]) * normOfMatrix) / (1f - normOfMatrix);
+                        }
+                    }
+
+                }   
                 //Console.WriteLine("Iteration");
             }
             while (maxDifference > e);

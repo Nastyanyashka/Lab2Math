@@ -10,18 +10,134 @@ namespace MathLab2
                 { 3f, 5f, 1f,12f},
                 { 1.799999f, 3f, 7f,13.599998f},
                 { 8f,1f,1f,18f}};
-            
-            
-            SolutionWithChooseOfMainElement(matrixA);
-           
+
+            float[,] matrixB =
+            {
+
+                {15f,0f,1f,16f },
+                {4f,15f,1f,20f },
+                {1f,1f,15f,17f }
+            };
+
+
+            SpecialView(ref matrixB);
+            PrintMatrix(matrixB);
+            SpecialIterationsMethod(matrixB, 0.001f);
         }
-        public static float[,] TriangleView( float[,] matrix)
+
+        public static void SpecialIterationsMethod(float[,] matrix, float e)
+        {
+            float[] actualVariablesX = new float[matrix.GetLength(0)];
+            float[] tempVariablesX = new float[matrix.GetLength(0)];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                actualVariablesX[i] = matrix[i, matrix.GetLength(1) - 1];
+            }
+
+            float maxDifference = 100;
+            do
+            {
+
+                actualVariablesX.CopyTo(tempVariablesX, 0);
+                for (int i = 0; i < matrix.GetLength(0); i++)
+                {
+                    actualVariablesX[i] = 0;
+                    for (int j = 0; j < matrix.GetLength(1) - 1; j++)
+                    {
+                        actualVariablesX[i] += matrix[i, j] * tempVariablesX[j];
+                    }
+                    actualVariablesX[i] += matrix[i, matrix.GetLength(1) - 1];
+                }
+
+
+                for (int i = 0; i < actualVariablesX.Length; i++)
+                {
+                    if (Math.Abs(actualVariablesX[i] - tempVariablesX[i]) <= maxDifference)
+                    {
+                        maxDifference = Math.Abs(actualVariablesX[i] - tempVariablesX[i]);
+                    }
+                }
+                //Console.WriteLine("Iteration");
+            }
+            while (maxDifference > e);
+            Console.WriteLine();
+            for (int i = 0; i < actualVariablesX.Length; i++)
+            {
+                Console.Write(" " + actualVariablesX[i]);
+            }
+
+        }
+        public static void SpecialView(ref float[,] matrix)
+        {
+            float[,] newMatrix = new float[matrix.GetLength(0), matrix.GetLength(1)];
+            float koef = 0;
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                koef = matrix[i, i];
+                matrix[i, i] = 0;
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    if (j == i)
+                    {
+                        continue;
+                    }
+                    else if (j == matrix.GetLength(1) - 1)
+                    {
+                        matrix[i, j] /= koef;
+                    }
+                    else
+                    {
+                        matrix[i, j] /= -koef;
+                    }
+                }
+            }
+        }
+        public static float[,] TriangleView(float[,] matrix)
         {
             float koef = 0;
             for (int g = 0; g < matrix.GetLength(0) - 1; g++)
             {
                 for (int i = 1 + g; i < matrix.GetLength(0); i++)
                 {
+                    koef = matrix[i, g] / -matrix[g, g];
+                    for (int j = g; j < matrix.GetLength(1); j++)
+                    {
+                        matrix[i, j] = matrix[i, j] + matrix[g, j] * koef;
+                    }
+                }
+            }
+            return matrix;
+        }
+        public static float[,] TriangleViewWithChooseOfMainElement(float[,] matrix)
+        {
+            float koef = 0;
+            float temp = 0;
+            int index = 0;
+            for (int g = 0; g < matrix.GetLength(0) - 1; g++)
+            {
+                temp = matrix[g, g];
+                for (int h = g + 1; h < matrix.GetLength(0); h++)
+                {
+                    if (matrix[h, g] > temp)
+                    {
+                        temp = matrix[h, g];
+                        index = h;
+                    }
+
+                }
+
+                for (int h = 0; h < matrix.GetLength(1); h++)
+                {
+                    temp = matrix[g, h];
+                    matrix[g, h] = matrix[index, h];
+                    matrix[index, h] = temp;
+                }
+
+
+
+                for (int i = 1 + g; i < matrix.GetLength(0); i++)
+                {
+
                     koef = matrix[i, g] / -matrix[g, g];
                     for (int j = g; j < matrix.GetLength(1); j++)
                     {
@@ -46,6 +162,11 @@ namespace MathLab2
         {
             matrix = TriangleView(matrix);
             PrintMatrix(matrix);
+            DirecMove(matrix);
+
+        }
+        public static void DirecMove(float[,] matrix)
+        {
             float[] allX = new float[matrix.GetLength(1)];
             float B = 0f;
             for (int i = matrix.GetLength(0) - 1; i >= 0; i--)
@@ -65,27 +186,9 @@ namespace MathLab2
         }
         public static void SolutionWithChooseOfMainElement(float[,] matrix)
         {
-            float maxNum =0f;
-            int indexi = 0;
-           for(int i = 0;i<matrix.GetLength(0);i++)
-            {
-                if (matrix[i, 0] > maxNum)
-                {
-                    maxNum = matrix[i, 0];
-                    indexi= i;
-                }
-            }
-
-           float[] temp = new float[matrix.GetLength(1)];
-           for(int i = 0;i<matrix.GetLength(1);i++)
-            {
-                temp[i] = matrix[0, i];
-                matrix[0, i] = matrix[indexi, i];
-                matrix[indexi,i] = temp[i];
-            }
+            matrix = TriangleViewWithChooseOfMainElement(matrix);
             PrintMatrix(matrix);
-            Console.WriteLine();
-            SolutionWithoutChooseOfMainElement(matrix);
+            DirecMove(matrix);
         }
     }
 }

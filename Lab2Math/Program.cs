@@ -19,10 +19,48 @@ namespace MathLab2
                 {1f,1f,15f,17f }
             };
 
-
-            
-            SpecialIterationsMethod(matrixB, 0.001f);
+            float[,] matrixC =
+            {
+                {2f,-1f,0f,3f },
+                {5f,4f,2f,6f },
+                {0f,1f,-3f,2f }
+            };
+            Run_Through_Method(matrixC);
+            //SpecialIterationsMethod(matrixB, 0.001f);
         }
+
+
+        public static void Run_Through_Method(float[,] matrix)
+        {
+            float[] a = new float[matrix.GetLength(1) + 1];
+            float[] b = new float[matrix.GetLength(1)+1];
+            float[] solves = new float[matrix.GetLength(1) + 1];
+            a[1] = matrix[0, 1] / matrix[0, 0];
+            b[1] = matrix[0, matrix.GetLength(1) - 1] / matrix[0,0];
+            for(int i = 1;i<matrix.GetLength(0);i++)
+            {
+
+                a[i+1] = matrix[i, i + 1] / (matrix[i, i] - matrix[i, i-1] * a[i]);
+                b[i + 1] = (matrix[i, matrix.GetLength(1)-1] - b[i] * matrix[i , i-1]) / (matrix[i, i] - matrix[i , i-1] * a[i]);
+                
+                //matrix[i + 1, i + 1] = matrix[i + 1, i + 1] - matrix[i + 1, i] * a; 
+                //matrix[i + 1, i] = 0;
+            }
+            for(int i = matrix.GetLength(1)-1; i>=0;i--)
+            {
+                solves[i] = b[i + 1] - a[i + 1] * solves[i+1] ;
+
+
+            }
+            Console.WriteLine();
+            foreach (float i in solves)
+            {
+                Console.Write($" {i}");
+            }
+        }
+
+
+
         public static float NormOfMatrix(float[,] matrix)
         {
             float[] tempNorms = new float[matrix.GetLength(0)];
